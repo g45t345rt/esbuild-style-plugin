@@ -1,11 +1,11 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
     "test": "jest --coverage",
-    "build": "esbuild ./src/index.ts --bundle --platform=node --minify --outfile=./dist/index.js",
+    "build": "esbuild ./src/index.ts --bundle --platform=node --outfile=./dist/index.js",
     "prepublish": "npm run build"
   },
   "author": "g45t345rt",

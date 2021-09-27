@@ -4,10 +4,9 @@ import resolveFile from 'resolve-file'
 import postcss from 'postcss'
 import cssModules from 'postcss-modules'
 import temp from 'temp'
-import { TextDecoder } from 'util'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
-import { getModule, isCSSModule } from './helpers'
+import { renderStyle } from './utils'
 
 export interface PluginOptions {
   extract?: boolean
@@ -15,45 +14,9 @@ export interface PluginOptions {
   postcss?: unknown[]
 }
 
-export interface RenderOptions {
-  sassOptions?: {}
-  stylusOptions?: {}
-  lessOptions?: {}
-}
-
 const LOAD_TEMP_NAMESPACE = 'load_temp_namespace'
 const LOAD_STYLE_NAMESPACE = 'load_style_namespace'
 const styleFilter = /.\.(css|sass|scss|less|styl)$/
-
-export const renderStyle = async (filePath, options: RenderOptions = {}) => {
-  const { ext } = path.parse(filePath)
-
-  if (ext === '.css') {
-    return await fs.promises.readFile(filePath)
-  }
-
-  if (ext === '.sass' || ext === '.scss') {
-    const sassOptions = options.sassOptions || {}
-    const sass = getModule('sass')
-    return sass.renderSync({ ...sassOptions, file: filePath }).css.toString('utf-8')
-  }
-
-  if (ext === '.styl') {
-    const stylusOptions = options.sassOptions || {}
-    const stylus = getModule('stylus')
-    const source = await fs.promises.readFile(filePath)
-    return await stylus.render(new TextDecoder().decode(source), { ...stylusOptions, filename: filePath })
-  }
-
-  if (ext === '.less') {
-    const lestOptions = options.lessOptions || {}
-    const less = getModule('less')
-    const source = await fs.promises.readFile(filePath)
-    return (await less.render(new TextDecoder().decode(source), { ...lestOptions, filename: filePath })).css
-  }
-
-  throw new Error(`Can't render this style '${ext}'.`)
-}
 
 const handleCSSModules = (mapping) => cssModules({
   getJSON: (_, json) => {

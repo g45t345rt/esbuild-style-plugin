@@ -1,8 +1,7 @@
 import 'jest'
 import path from 'path'
 
-import { renderStyle } from '../../src'
-import { getModule } from '../../src/helpers'
+import { getModule, renderStyle } from '../../src/utils'
 
 const basePath = './test/errors'
 
