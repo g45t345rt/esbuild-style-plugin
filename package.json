@@ -1,6 +1,6 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "postcss": "^8.3.8",
+    "postcss-modules": "^4.2.2",
     "resolve-file": "^0.3.0",
     "temp": "^0.9.4"
   },
@@ -28,7 +29,6 @@
     "esbuild": "^0.13.2",
     "jest": "^27.2.2",
     "less": "^4.1.1",
-    "postcss-modules": "^4.2.2",
     "postcss-preset-env": "^6.7.0",
     "sass": "^1.42.1",
     "stylus": "^0.55.0",
