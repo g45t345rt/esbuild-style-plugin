@@ -99,7 +99,7 @@ const onStyleLoad = (options) => async (args: OnLoadArgs): Promise<OnLoadResult>
   }
 }
 
-export default (options: PluginOptions = {}) => ({
+const plugin = (options: PluginOptions = {}) => ({
   name: 'esbuild-postcss-plugin',
   setup: (build: PluginBuild) => {
     // Resolve all css or other style here
@@ -112,3 +112,6 @@ export default (options: PluginOptions = {}) => ({
     build.onLoad({ filter: /.*/, namespace: LOAD_STYLE_NAMESPACE }, onStyleLoad(options))
   }
 })
+
+export default plugin
+module.exports = plugin
