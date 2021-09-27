@@ -1,10 +1,10 @@
 # Another esbuild plugin for your styling
 
-Supports css, sass, styl, less
-Handles css modules automatically
-You can include postcss plugins (autoprefixer, preset-env)
-Temp file cleanup and caching (TODO)
-Written in Typescript with maintainable code
+- Supports css, sass, styl, less
+- Handles css modules automatically
+- You can include postcss plugins (autoprefixer, preset-env)
+- Temp file cleanup and caching (TODO)
+- Written in Typescript with maintainable code
 
 ## NPM package
 
@@ -36,9 +36,9 @@ The plugin does not come with all preprocessor installed since you might not nee
 
 Install the ones you need!
 
-SASS `npm i -D sass`
-LESS `npm i -D less`
-STYLUS `npm i -D stylus`
+- SASS `npm i -D sass`
+- LESS `npm i -D less`
+- STYLUS `npm i -D stylus`
 
 ## CSS Modules
 
