@@ -100,7 +100,7 @@ const onStyleLoad = (options) => async (args: OnLoadArgs): Promise<OnLoadResult>
 }
 
 const plugin = (options: PluginOptions = {}) => ({
-  name: 'esbuild-postcss-plugin',
+  name: 'esbuild-style-plugin',
   setup: (build: PluginBuild) => {
     // Resolve all css or other style here
     build.onResolve({ filter: styleFilter }, onStyleResolve)
