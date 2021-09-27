@@ -1,14 +1,18 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
     "test": "jest --coverage",
-    "build": "esbuild ./src/index.ts --bundle --platform=node --minify --outfile=./dist/index.js"
+    "build": "esbuild ./src/index.ts --bundle --platform=node --minify --outfile=./dist/index.js",
+    "prepublish": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/g45t345rt/esbuild-style-plugin"
+  },
+  "homepage": "https://github.com/g45t345rt/esbuild-style-plugin#readme",
   "license": "ISC",
   "dependencies": {
     "postcss": "^8.3.8",
