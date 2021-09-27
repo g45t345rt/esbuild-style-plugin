@@ -1,0 +1,33 @@
+{
+  "name": "esbuild-style-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "build": "esbuild ./src/index.ts --bundle --platform=node --minify --outfile=./dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "postcss": "^8.3.8",
+    "resolve-file": "^0.3.0",
+    "temp": "^0.9.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.10.1",
+    "@types/temp": "^0.9.1",
+    "autoprefixer": "^10.3.6",
+    "esbuild": "^0.13.2",
+    "jest": "^27.2.2",
+    "less": "^4.1.1",
+    "postcss-modules": "^4.2.2",
+    "postcss-preset-env": "^6.7.0",
+    "sass": "^1.42.1",
+    "stylus": "^0.55.0",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1"
+  }
+}
