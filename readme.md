@@ -1,8 +1,11 @@
-# Another esbuild plugin for your styling
+# esbuild-style-plugin
 
-- Supports css, sass, styl, less
-- Handles css modules automatically
+Another esbuild plugin for your styling.
+
+- Supports multiple preprocessors like SASS, STYLUS, LESS
+- Handles css modules automatically with PostCSS
 - You can include postcss plugins (autoprefixer, preset-env)
+- Server side rendering friendly! :)
 - Temp file cleanup and caching (TODO)
 - Written in Typescript with maintainable code
 
@@ -15,6 +18,8 @@
 Look at the test files or here is a basic example
 
 ```js
+const stylePlugin = require('esbuild-style-plugin')
+
 esbuild.build({
   plugins: [
     stylePlugin()
@@ -24,11 +29,11 @@ esbuild.build({
 
 ### Plugin options
 
-`extract`
-`cssModulesMatch`
-`sassOptions`
-`lessOptions`
-`stylusOptions`
+- `extract` default to true
+- `cssModulesMatch` match .module. by default
+- `sassOptions` <https://sass-lang.com/documentation/js-api#options>
+- `lessOptions` <https://lesscss.org/usage/#less-options>
+- `stylusOptions` <https://stylus-lang.com/docs/js.html>
 
 ## Preprocessor
 
