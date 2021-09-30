@@ -6,7 +6,6 @@ import cssModules from 'postcss-modules'
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
-import './modules'
 import { renderStyle } from './utils'
 
 interface PluginOptions {

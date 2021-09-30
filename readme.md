@@ -66,3 +66,10 @@ You can include any other plugins with the `postcss` option.
 
 Do not use cssnano plugin. It won't work and if it did it minifies all files seperatly (slow not efficient).
 Just let esbuild minify and do his job.
+
+### Preprocessors import typings
+
+If you want to be able to use `import styles from 'styles.module.sass'` without any errors
+Just add `esbuild-style-plugin` to your types in `tsconfig.json`
+
+![tsconfig.json import types](import_types.jpg)
