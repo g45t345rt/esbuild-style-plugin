@@ -6,6 +6,7 @@ import cssModules from 'postcss-modules'
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
+import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
 import { renderStyle } from './utils'
 
 interface PluginOptions {
