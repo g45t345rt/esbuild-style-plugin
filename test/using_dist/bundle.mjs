@@ -1,5 +1,5 @@
-const esbuild = require('esbuild')
-const stylePlugin = require('../../dist/index')
+import esbuild from 'esbuild'
+import stylePlugin from '../../dist/index.mjs'
 
 esbuild.build({
   bundle: true,

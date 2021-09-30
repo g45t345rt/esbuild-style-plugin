@@ -3,10 +3,14 @@
 Another esbuild plugin for your styling.
 
 - Supports multiple preprocessors like SASS, STYLUS, LESS
+- Dynamic preprocessors import - no preprocessors installed by default
 - Handles css modules automatically with PostCSS
 - You can include postcss plugins (autoprefixer, preset-env)
 - Server side rendering friendly! :)
+- Support esbuild watch (TODO)
 - Temp file cleanup and caching (TODO)
+- Includes d.ts files in dist
+- Build format for both cjs and esm
 - Written in Typescript with maintainable code
 
 ## NPM package
@@ -18,6 +22,7 @@ Another esbuild plugin for your styling.
 Look at the test files or here is a basic example
 
 ```js
+// import stylePlugin from 'esbuild-style-plugin`
 const stylePlugin = require('esbuild-style-plugin')
 
 esbuild.build({
@@ -50,11 +55,12 @@ Install the ones you need!
 ### Server side rendering
 
 A specific use case that this plugin covers is SSR.
-Using `extract: false` will not process css on server side but will keep css mapping for css modules
+Using `extract: false` will not process css on server side but will keep css mapping for css modules.
 
 ## PostCSS
 
 The plugin is using PostCSS to handle css modules files.
+You can include any other plugins with the `postcss` option.
 
 ### CSSNano
 

@@ -1,11 +1,14 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.0.7",
-  "description": "",
-  "main": "./dist/index.js",
+  "version": "1.0.8",
+  "description": "Another esbuild plugin for your styling with CSS,SASS,LESS,STYLUS",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index",
+  "browser": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "scripts": {
     "test": "jest --coverage",
-    "build": "esbuild ./src/index.ts ./src/utils.ts --platform=node --format=cjs --outdir=./dist",
+    "build": "ts-node bundle.ts && tsc --emitDeclarationOnly --outDir dist",
     "prepublish": "npm run build"
   },
   "author": "g45t345rt",
@@ -16,6 +19,9 @@
   "homepage": "https://github.com/g45t345rt/esbuild-style-plugin#readme",
   "license": "ISC",
   "dependencies": {
+    "@types/less": "^3.0.3",
+    "@types/sass": "^1.16.1",
+    "@types/stylus": "^0.48.36",
     "postcss": "^8.3.8",
     "postcss-modules": "^4.2.2",
     "resolve-file": "^0.3.0",

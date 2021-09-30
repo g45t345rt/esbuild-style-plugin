@@ -1,21 +1,21 @@
 import path from 'path'
 import fs from 'fs'
 import resolveFile from 'resolve-file'
-import postcss from 'postcss'
+import postcss, { AcceptedPlugin } from 'postcss'
 import cssModules from 'postcss-modules'
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
 import { renderStyle } from './utils'
 
-export interface PluginOptions {
+interface PluginOptions {
   extract?: boolean
-  cssModuleMatch?: RegExp
-  postcss?: unknown[]
+  cssModulesMatch?: RegExp
+  postcss?: AcceptedPlugin[]
 }
 
-const LOAD_TEMP_NAMESPACE = 'load_temp_namespace'
-const LOAD_STYLE_NAMESPACE = 'load_style_namespace'
+const LOAD_TEMP_NAMESPACE = 'temp_stylePlugin'
+const LOAD_STYLE_NAMESPACE = 'stylePlugin'
 const styleFilter = /.\.(css|sass|scss|less|styl)$/
 
 const handleCSSModules = (mapping) => cssModules({
@@ -54,7 +54,7 @@ const onTempLoad = async (args: OnLoadArgs): Promise<OnLoadResult> => {
   }
 }
 
-const onStyleLoad = (options) => async (args: OnLoadArgs): Promise<OnLoadResult> => {
+const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promise<OnLoadResult> => {
   // { extract: false } is for SSR since we only need the css mapping and not the actual css file
   const extract = options.extract === undefined ? true : options.extract
   const cssModulesMatch = options.cssModulesMatch || /\.module\./
@@ -99,7 +99,7 @@ const onStyleLoad = (options) => async (args: OnLoadArgs): Promise<OnLoadResult>
   }
 }
 
-const plugin = (options: PluginOptions = {}) => ({
+const stylePlugin = (options: PluginOptions = {}) => ({
   name: 'esbuild-style-plugin',
   setup: (build: PluginBuild) => {
     // Resolve all css or other style here
@@ -113,5 +113,6 @@ const plugin = (options: PluginOptions = {}) => ({
   }
 })
 
-export default plugin
-module.exports = plugin
+//export default stylePlugin
+//module.exports = plugin
+export = stylePlugin

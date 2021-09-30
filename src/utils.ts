@@ -1,46 +1,56 @@
 import { TextDecoder } from 'util'
 import path from 'path'
 import fs from 'fs'
+import { Options as SassOptions, Result as SassResult } from 'sass'
+import { RenderOptions as StylusOptions } from 'stylus'
 
-export const getModule = (moduleName: string) => {
+export interface RenderOptions {
+  sassOptions?: SassOptions
+  stylusOptions?: StylusOptions
+  lessOptions?: Less.Options
+}
+
+export const getModule = async (moduleName: string) => {
   try {
-    require.resolve(moduleName)
+    return (await import(moduleName)).default
   } catch {
     throw new Error(`Missing module. Please install '${moduleName}' package.`)
   }
-  return require(moduleName)
 }
 
-export interface RenderOptions {
-  sassOptions?: {}
-  stylusOptions?: {}
-  lessOptions?: {}
+const renderStylus = async (css: string, options: StylusOptions): Promise<string> => {
+  const stylus = await getModule('stylus')
+  return new Promise((resolve, reject) => {
+    stylus.render(css, options, (err, css) => {
+      if (err) reject(err)
+      resolve(css)
+    })
+  })
 }
 
-export const renderStyle = async (filePath, options: RenderOptions = {}) => {
+export const renderStyle = async (filePath, options: RenderOptions = {}): Promise<string> => {
   const { ext } = path.parse(filePath)
 
   if (ext === '.css') {
-    return await fs.promises.readFile(filePath)
+    return (await fs.promises.readFile(filePath)).toString('utf-8')
   }
 
   if (ext === '.sass' || ext === '.scss') {
     const sassOptions = options.sassOptions || {}
-    const sass = getModule('sass')
+    const sass = await getModule('sass')
     return sass.renderSync({ ...sassOptions, file: filePath }).css.toString('utf-8')
   }
 
   if (ext === '.styl') {
-    const stylusOptions = options.sassOptions || {}
-    const stylus = getModule('stylus')
+    const stylusOptions = options.stylusOptions || {}
     const source = await fs.promises.readFile(filePath)
-    return await stylus.render(new TextDecoder().decode(source), { ...stylusOptions, filename: filePath })
+    return await renderStylus(new TextDecoder().decode(source), { ...stylusOptions, filename: filePath })
   }
 
   if (ext === '.less') {
     const lestOptions = options.lessOptions || {}
-    const less = getModule('less')
     const source = await fs.promises.readFile(filePath)
+    const less = await getModule('less')
     return (await less.render(new TextDecoder().decode(source), { ...lestOptions, filename: filePath })).css
   }
 

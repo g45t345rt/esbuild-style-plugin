@@ -1,13 +1,25 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "declaration": true,
     "lib": [
-      "ES2020"
+      "ES2020",
+      "DOM"
     ],
     "types": [
       "node",
-      "jest"
+      "jest",
+      "less",
+      "sass",
+      "stylus"
     ]
-  }
+  },
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
