@@ -8,7 +8,7 @@
   "module": "./dist/index.mjs",
   "scripts": {
     "test": "jest --coverage",
-    "build": "ts-node bundle.ts && tsc --emitDeclarationOnly --outDir dist",
+    "build": "ts-node bundle.ts && tsc --emitDeclarationOnly --outFile ./dist/index.d.ts",
     "prepublish": "npm run build"
   },
   "author": "g45t345rt",

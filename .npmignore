@@ -1,3 +1,6 @@
 src
 test
 coverage
+bundle.ts
+jest.config.js
+tsconfig.json
