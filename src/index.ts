@@ -6,6 +6,7 @@ import cssModules from 'postcss-modules'
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
+import './modules'
 import { renderStyle } from './utils'
 
 interface PluginOptions {
@@ -113,6 +114,4 @@ const stylePlugin = (options: PluginOptions = {}) => ({
   }
 })
 
-//export default stylePlugin
-//module.exports = plugin
 export = stylePlugin

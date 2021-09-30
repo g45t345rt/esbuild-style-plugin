@@ -1,11 +1,11 @@
-// normal import
+// styling preprocessor import
 declare module "*.styl"
 declare module "*.less"
 declare module "*.sass"
 declare module "*.scss"
 declare module "*.css"
 
-// css modules import
+// css modules preprocessor import
 declare module "*.module.css" {
   const classes: { readonly [key: string]: string }
   export default classes
