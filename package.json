@@ -1,6 +1,6 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Another esbuild plugin for your styling with CSS,SASS,LESS,STYLUS",
   "types": "./dist/index.d.ts",
   "main": "./dist/index",
