@@ -40,7 +40,8 @@ const onStyleResolve = async (args: OnResolveArgs): Promise<OnResolveResult> => 
 
   return {
     path: fullPath,
-    namespace: LOAD_STYLE_NAMESPACE
+    namespace: LOAD_STYLE_NAMESPACE,
+    watchFiles: [fullPath]
   }
 }
 
@@ -94,6 +95,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
     contents += `import ${JSON.stringify(writestream.path)};`
   }
 
+  console.log(args.path)
   return {
     resolveDir: path.dirname(args.path), // Keep resolveDir for onTempLoad anything resolve inside temp file must be resolve using source dir
     contents: contents

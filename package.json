@@ -1,6 +1,6 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Another esbuild plugin for your styling with CSS,SASS,LESS,STYLUS",
   "types": "./dist/index.d.ts",
   "main": "./dist/index",
@@ -10,6 +10,7 @@
     "dist"
   ],
   "scripts": {
+    "test-watch": "ts-node ./test/watch/index.ts",
     "test": "jest --coverage",
     "build": "ts-node bundle.ts && tsc --emitDeclarationOnly --outDir dist",
     "prepublish": "npm run build"

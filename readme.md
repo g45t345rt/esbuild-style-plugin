@@ -6,11 +6,11 @@ Another esbuild plugin for your styling.
 - Dynamic preprocessors import - no preprocessors installed by default
 - Handles css modules automatically with PostCSS
 - You can include postcss plugins (autoprefixer, preset-env)
-- Server side rendering friendly! :)
-- Support esbuild watch (TODO)
+- SSR / Server side rendering friendly :)
 - Temp file cleanup and caching (TODO)
 - Includes d.ts files in dist
 - Build format for both cjs and esm
+- Support esbuild watch
 - Written in Typescript with maintainable code
 
 ## NPM package
