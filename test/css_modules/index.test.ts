@@ -6,13 +6,16 @@ import stylePlugin from '../../src'
 
 const basePath = './test/css_modules/'
 
-test('Test css modules',  async () => {
+test('Test css modules', async () => {
   await esbuild.build({
     entryPoints: [path.join(basePath, 'src/index.ts')],
     outdir: path.join(basePath, 'dist'),
     bundle: true,
     plugins: [stylePlugin({
       //cssModuleMatch: /.modue/
+      cssModulesOptions: {
+        generateScopedName: "[name]__[local]___[hash:base64:5]"
+      }
     })]
   })
 })

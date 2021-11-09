@@ -3,6 +3,8 @@ import fs from 'fs'
 import resolveFile from 'resolve-file'
 import postcss, { AcceptedPlugin } from 'postcss'
 import cssModules from 'postcss-modules'
+import CssModulesOptions from './postcssModulesOptions'
+
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
@@ -12,6 +14,7 @@ import { renderStyle } from './utils'
 interface PluginOptions {
   extract?: boolean
   cssModulesMatch?: RegExp
+  cssModulesOptions?: CssModulesOptions,
   postcss?: AcceptedPlugin[]
 }
 
@@ -19,11 +22,17 @@ const LOAD_TEMP_NAMESPACE = 'temp_stylePlugin'
 const LOAD_STYLE_NAMESPACE = 'stylePlugin'
 const styleFilter = /.\.(css|sass|scss|less|styl)$/
 
-const handleCSSModules = (mapping) => cssModules({
-  getJSON: (_, json) => {
-    mapping.data = JSON.stringify(json, null, 2)
-  }
-})
+const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesOptions) => {
+  const _getJSON = cssModulesOptions.getJSON
+
+  return cssModules({
+    ...cssModulesOptions,
+    getJSON: (cssFilename, json, outputFilename) => {
+      if (typeof _getJSON === 'function') _getJSON(cssFilename, json, outputFilename)
+      mapping.data = JSON.stringify(json, null, 2)
+    }
+  })
+}
 
 const onStyleResolve = async (args: OnResolveArgs): Promise<OnResolveResult> => {
   const { namespace, resolveDir } = args
@@ -61,6 +70,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   const extract = options.extract === undefined ? true : options.extract
   const cssModulesMatch = options.cssModulesMatch || /\.module\./
   const isCSSModule = args.path.match(cssModulesMatch)
+  const cssModulesOptions = options.cssModulesOptions || {}
 
   // Render whatever style currently on the loader .css, .sass, .styl, .less
   let css = await renderStyle(args.path)
@@ -73,7 +83,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   // Match file with extension .module. => styles.module.sass
   if (isCSSModule) {
     // We have css module file so we include the postcss-modules plugin
-    plugins = [handleCSSModules(mapping), ...plugins]
+    plugins = [handleCSSModules(mapping, cssModulesOptions), ...plugins]
     injectMapping = true
   }
 

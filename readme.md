@@ -15,15 +15,15 @@ Another esbuild plugin for your styling.
 
 ## NPM package
 
-`npm i esbuild-style-plugin -D`
+`npm i -D esbuild-style-plugin`
 
 ## Using the package
 
 Look at the test files or here is a basic example
 
-```js
-// import stylePlugin from 'esbuild-style-plugin`
-const stylePlugin = require('esbuild-style-plugin')
+```ts
+import stylePlugin from 'esbuild-style-plugin'
+//const stylePlugin = require('esbuild-style-plugin')
 
 esbuild.build({
   plugins: [
@@ -35,7 +35,8 @@ esbuild.build({
 ### Plugin options
 
 - `extract` default to true
-- `cssModulesMatch` match .module. by default
+- `cssModulesMatch` match `.module.` by default
+- `cssModulesOptions` <https://github.com/madyankin/postcss-modules#usage>
 - `sassOptions` <https://sass-lang.com/documentation/js-api#options>
 - `lessOptions` <https://lesscss.org/usage/#less-options>
 - `stylusOptions` <https://stylus-lang.com/docs/js.html>
