@@ -9,13 +9,14 @@ import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
 import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
-import { renderStyle } from './utils'
+import { RenderOptions, renderStyle } from './utils'
 
 interface PluginOptions {
   extract?: boolean
   cssModulesMatch?: RegExp
   cssModulesOptions?: CssModulesOptions,
-  postcss?: AcceptedPlugin[]
+  postcss?: AcceptedPlugin[],
+  renderOptions?: RenderOptions
 }
 
 const LOAD_TEMP_NAMESPACE = 'temp_stylePlugin'
@@ -71,9 +72,10 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   const cssModulesMatch = options.cssModulesMatch || /\.module\./
   const isCSSModule = args.path.match(cssModulesMatch)
   const cssModulesOptions = options.cssModulesOptions || {}
+  const renderOptions = options.renderOptions
 
   // Render whatever style currently on the loader .css, .sass, .styl, .less
-  let css = await renderStyle(args.path)
+  let css = await renderStyle(args.path, renderOptions)
 
   let mapping = { data: {} }
   let plugins = options.postcss || []

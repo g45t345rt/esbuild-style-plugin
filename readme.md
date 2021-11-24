@@ -37,9 +37,10 @@ esbuild.build({
 - `extract` default to true
 - `cssModulesMatch` match `.module.` by default
 - `cssModulesOptions` <https://github.com/madyankin/postcss-modules#usage>
-- `sassOptions` <https://sass-lang.com/documentation/js-api#options>
-- `lessOptions` <https://lesscss.org/usage/#less-options>
-- `stylusOptions` <https://stylus-lang.com/docs/js.html>
+- `renderOptions`
+  - `sassOptions` <https://sass-lang.com/documentation/js-api#options>
+  - `lessOptions` <https://lesscss.org/usage/#less-options>
+  - `stylusOptions` <https://stylus-lang.com/docs/js.html>
 
 ## Preprocessor
 

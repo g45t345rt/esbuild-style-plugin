@@ -1,6 +1,6 @@
 {
   "name": "esbuild-style-plugin",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Another esbuild plugin for your styling with CSS,SASS,LESS,STYLUS",
   "types": "./dist/index.d.ts",
   "main": "./dist/index",
@@ -32,14 +32,14 @@
     "temp": "^0.9.4"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.2",
-    "@types/node": "^16.11.7",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.10",
     "@types/temp": "^0.9.1",
     "autoprefixer": "^10.4.0",
-    "esbuild": "^0.13.13",
+    "esbuild": "^0.13.15",
     "jest": "^27.3.1",
     "less": "^4.1.2",
-    "postcss-preset-env": "^6.7.0",
+    "postcss-preset-env": "^7.0.1",
     "sass": "^1.43.4",
     "stylus": "^0.55.0",
     "ts-jest": "^27.0.7",

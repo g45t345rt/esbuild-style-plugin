@@ -1,7 +1,7 @@
 import { TextDecoder } from 'util'
 import path from 'path'
 import fs from 'fs'
-import { Options as SassOptions, Result as SassResult } from 'sass'
+import { Options as SassOptions } from 'sass'
 import { RenderOptions as StylusOptions } from 'stylus'
 
 export interface RenderOptions {
@@ -32,13 +32,13 @@ export const renderStyle = async (filePath, options: RenderOptions = {}): Promis
   const { ext } = path.parse(filePath)
 
   if (ext === '.css') {
-    return (await fs.promises.readFile(filePath)).toString('utf-8')
+    return (await fs.promises.readFile(filePath)).toString()
   }
 
   if (ext === '.sass' || ext === '.scss') {
     const sassOptions = options.sassOptions || {}
     const sass = await getModule('sass')
-    return sass.renderSync({ ...sassOptions, file: filePath }).css.toString('utf-8')
+    return sass.renderSync({ ...sassOptions, file: filePath }).css.toString()
   }
 
   if (ext === '.styl') {
