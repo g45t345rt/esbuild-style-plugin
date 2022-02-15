@@ -6,6 +6,7 @@ Another esbuild plugin for your styling.
 - Dynamic preprocessors import - no preprocessors installed by default
 - Handles css modules automatically with PostCSS
 - You can include postcss plugins (autoprefixer, preset-env)
+- Can read `postcss.config.js` config file - if path is provided in `postcssConfigFile` option
 - SSR / Server side rendering friendly :)
 - Temp file cleanup and caching (TODO)
 - Includes d.ts files in dist
@@ -41,6 +42,8 @@ esbuild.build({
   - `sassOptions` <https://sass-lang.com/documentation/js-api#options>
   - `lessOptions` <https://lesscss.org/usage/#less-options>
   - `stylusOptions` <https://stylus-lang.com/docs/js.html>
+- `postcss` array of postcss accepted plugins
+- `postcssConfigFile` absolute path to `postcss.config.js` or `true` for using root folder path
 
 ## Preprocessor
 

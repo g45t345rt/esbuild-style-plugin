@@ -3,6 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import { Options as SassOptions } from 'sass'
 import { RenderOptions as StylusOptions } from 'stylus'
+import { AcceptedPlugin } from 'postcss'
 
 export interface RenderOptions {
   sassOptions?: SassOptions
@@ -55,4 +56,19 @@ export const renderStyle = async (filePath, options: RenderOptions = {}): Promis
   }
 
   throw new Error(`Can't render this style '${ext}'.`)
+}
+
+export const importPostcssConfigFile = async (configFilePath: string | boolean): Promise<{ plugins: AcceptedPlugin[] }> => {
+  let _configFilePath = configFilePath === true ? path.resolve(process.cwd(), 'postcss.config.js') : configFilePath as string
+
+  try {
+    const imported = await import(_configFilePath)
+    if (!imported.default) throw new Error(`Missing default import .`)
+    const config = imported.default
+    if (!config.plugins) throw new Error(`Missing plugins [array].`)
+    return config
+  } catch (err) {
+    console.error(err)
+    throw new Error(`PostCSS config file at ${_configFilePath} can't load.`)
+  }
 }

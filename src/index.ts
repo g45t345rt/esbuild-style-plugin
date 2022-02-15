@@ -3,19 +3,19 @@ import fs from 'fs'
 import resolveFile from 'resolve-file'
 import postcss, { AcceptedPlugin } from 'postcss'
 import cssModules from 'postcss-modules'
-import CssModulesOptions from './postcssModulesOptions'
-
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
+import CssModulesOptions from './postcssModulesOptions'
 import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
-import { RenderOptions, renderStyle } from './utils'
+import { importPostcssConfigFile, RenderOptions, renderStyle } from './utils'
 
 interface PluginOptions {
   extract?: boolean
   cssModulesMatch?: RegExp
   cssModulesOptions?: CssModulesOptions,
   postcss?: AcceptedPlugin[],
+  postcssConfigFile?: string | boolean
   renderOptions?: RenderOptions
 }
 
@@ -115,11 +115,17 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
 const stylePlugin = (options: PluginOptions = {}) => ({
   name: 'esbuild-style-plugin',
-  setup: (build: PluginBuild) => {
+  setup: async (build: PluginBuild) => {
+    if (options.postcssConfigFile) {
+      const { plugins } = await importPostcssConfigFile(options.postcssConfigFile)
+      if (options.postcss) options.postcss = [...options.postcss, ...plugins]
+      else options.postcss = plugins
+    }
+
     // Resolve all css or other style here
     build.onResolve({ filter: styleFilter }, onStyleResolve)
 
-    // New temp files from rendered css must evaluated
+    // New temp files from rendered css must be evaluated
     build.onLoad({ filter: /.*/, namespace: LOAD_TEMP_NAMESPACE }, onTempLoad)
 
     // Render css with CSS Extensions / Preprocessors and PostCSS
