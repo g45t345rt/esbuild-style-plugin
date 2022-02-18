@@ -1,9 +1,10 @@
 import { TextDecoder } from 'util'
 import path from 'path'
 import fs from 'fs'
+import glob from 'glob'
 import { Options as SassOptions } from 'sass'
 import { RenderOptions as StylusOptions } from 'stylus'
-import { AcceptedPlugin } from 'postcss'
+import { AcceptedPlugin, Result } from 'postcss'
 
 export interface RenderOptions {
   sassOptions?: SassOptions
@@ -71,4 +72,22 @@ export const importPostcssConfigFile = async (configFilePath: string | boolean):
     console.error(err)
     throw new Error(`PostCSS config file at ${_configFilePath} can't load.`)
   }
+}
+
+export const getPostCSSWatchFiles = (result: Result) => {
+  let watchFiles = [] as string[]
+  const { messages } = result
+  for (const message of messages) {
+    const { type } = message
+    if (type === 'dependency') {
+      watchFiles.push(message.file)
+    } else if (type === 'dir-dependency') {
+      if (!message.dir) continue
+
+      const globPath = path.join(message.dir, message.glob ?? `**/*`)
+      const files = glob.sync(globPath)
+      watchFiles = [...watchFiles, ...files]
+    }
+  }
+  return watchFiles
 }

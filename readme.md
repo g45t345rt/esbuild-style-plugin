@@ -7,6 +7,7 @@ Another esbuild plugin for your styling.
 - Handles css modules automatically with PostCSS
 - You can include postcss plugins (autoprefixer, preset-env)
 - Can read `postcss.config.js` config file - if path is provided in `postcssConfigFile` option
+- Support postcss/tailwindcss dependencies for watching files - <https://github.com/postcss/postcss/blob/main/docs/guidelines/plugin.md#3-dependencies>
 - SSR / Server side rendering friendly :)
 - Temp file cleanup and caching (TODO)
 - Includes d.ts files in dist

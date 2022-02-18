@@ -1,4 +1,8 @@
 import * as esbuild from 'esbuild'
+import path from 'path'
+import atImport from 'postcss-import'
+import tailwindcss from 'tailwindcss'
+
 import stylePlugin from '../../src'
 
 const onRebuild = (error: esbuild.BuildFailure, result: esbuild.BuildResult) => {
@@ -12,6 +16,15 @@ esbuild.build({
   bundle: true,
   watch: { onRebuild },
   plugins: [
-    stylePlugin()
+    stylePlugin({
+      postcss: [
+        atImport(),
+        tailwindcss({
+          content: [
+            path.join(`./test/watch/css`, `**/*.{html,js}`)
+          ]
+        })
+      ]
+    })
   ]
 })

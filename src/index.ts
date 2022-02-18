@@ -8,7 +8,7 @@ import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild }
 
 import CssModulesOptions from './postcssModulesOptions'
 import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
-import { importPostcssConfigFile, RenderOptions, renderStyle } from './utils'
+import { getPostCSSWatchFiles, importPostcssConfigFile, RenderOptions, renderStyle } from './utils'
 
 interface PluginOptions {
   extract?: boolean
@@ -77,6 +77,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   // Render whatever style currently on the loader .css, .sass, .styl, .less
   let css = await renderStyle(args.path, renderOptions)
 
+  let watchFiles = []
   let mapping = { data: {} }
   let plugins = options.postcss || []
   let injectMapping = false
@@ -91,7 +92,10 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
   // Makes no sense to process postcss if we don't have any plugins
   if (plugins.length > 0) {
-    css = (await postcss(plugins).process(css, { from: args.path })).css
+    const result = await postcss(plugins).process(css, { from: args.path })
+    css = result.css
+
+    watchFiles = [...watchFiles, ...getPostCSSWatchFiles(result)]
 
     // Inject classnames mapping for css modules
     if (injectMapping) contents += `export default ${mapping.data};`
@@ -108,6 +112,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   }
 
   return {
+    watchFiles,
     resolveDir: path.dirname(args.path), // Keep resolveDir for onTempLoad anything resolve inside temp file must be resolve using source dir
     contents: contents
   }

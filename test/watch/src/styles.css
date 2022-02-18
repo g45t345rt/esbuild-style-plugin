@@ -1,0 +1,9 @@
+@import "foo.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.app {
+  background-color: black
+}
