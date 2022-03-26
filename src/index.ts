@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import resolveFile from 'resolve-file'
+import resolve from 'resolve'
 import postcss, { AcceptedPlugin } from 'postcss'
 import cssModules from 'postcss-modules'
 import temp from 'temp'
@@ -37,8 +37,7 @@ const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesO
 
 const onStyleResolve = async (args: OnResolveArgs): Promise<OnResolveResult> => {
   const { namespace, resolveDir } = args
-  let fullPath = resolveFile(args.path, {})
-  if (!fullPath) fullPath = path.resolve(args.resolveDir, args.path)
+  const fullPath = resolve.sync(args.path, { basedir: args.resolveDir })
 
   if (namespace === LOAD_STYLE_NAMESPACE) {
     return {

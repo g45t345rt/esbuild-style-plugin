@@ -14,7 +14,14 @@
       "less",
       "sass",
       "stylus"
-    ]
+    ],
+    // this is for tsconfig_path_aliases test
+    "baseUrl": "./",
+    "paths": {
+      "@sub": [
+        "sub/*"
+      ]
+    }
   },
   "include": [
     "./src"
