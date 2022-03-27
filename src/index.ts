@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import resolve from 'resolve'
-import postcss, { AcceptedPlugin } from 'postcss'
+import postcss, { AcceptedPlugin, ProcessOptions } from 'postcss'
 import cssModules from 'postcss-modules'
 import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
@@ -10,11 +10,16 @@ import CssModulesOptions from './postcssModulesOptions'
 import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
 import { getPostCSSWatchFiles, importPostcssConfigFile, RenderOptions, renderStyle } from './utils'
 
+interface PostCSS extends ProcessOptions {
+  plugins: AcceptedPlugin[]
+}
+
 interface PluginOptions {
   extract?: boolean
   cssModulesMatch?: RegExp
   cssModulesOptions?: CssModulesOptions,
-  postcss?: AcceptedPlugin[],
+  postcss?: PostCSS // AcceptedPlugin[],
+  //postcssOptions?: ProcessOptions
   postcssConfigFile?: string | boolean
   renderOptions?: RenderOptions
 }
@@ -78,7 +83,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
   let watchFiles = []
   let mapping = { data: {} }
-  let plugins = options.postcss || []
+  let { plugins = [], ...processOptions } = options.postcss || {}
   let injectMapping = false
   let contents = ''
 
@@ -91,7 +96,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
   // Makes no sense to process postcss if we don't have any plugins
   if (plugins.length > 0) {
-    const result = await postcss(plugins).process(css, { from: args.path })
+    const result = await postcss(plugins).process(css, { ...processOptions, from: args.path  })
     css = result.css
 
     watchFiles = [...watchFiles, ...getPostCSSWatchFiles(result)]
@@ -121,9 +126,8 @@ const stylePlugin = (options: PluginOptions = {}) => ({
   name: 'esbuild-style-plugin',
   setup: async (build: PluginBuild) => {
     if (options.postcssConfigFile) {
-      const { plugins } = await importPostcssConfigFile(options.postcssConfigFile)
-      if (options.postcss) options.postcss = [...options.postcss, ...plugins]
-      else options.postcss = plugins
+      console.log(`Using postcss config file.`)
+      options.postcss = await importPostcssConfigFile(options.postcssConfigFile)
     }
 
     // Resolve all css or other style here

@@ -43,7 +43,9 @@ esbuild.build({
   - `sassOptions` <https://sass-lang.com/documentation/js-api#options>
   - `lessOptions` <https://lesscss.org/usage/#less-options>
   - `stylusOptions` <https://stylus-lang.com/docs/js.html>
-- `postcss` array of postcss accepted plugins
+- `postcss`
+  - `plugins` array of postcss accepted plugins
+  - `parser` | `syntax` parse source css - use with postcss-scss
 - `postcssConfigFile` absolute path to `postcss.config.js` or `true` for using root folder path
 
 ## Preprocessor
