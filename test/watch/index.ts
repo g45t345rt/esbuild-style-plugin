@@ -17,14 +17,16 @@ esbuild.build({
   watch: { onRebuild },
   plugins: [
     stylePlugin({
-      postcss: [
-        atImport(),
-        tailwindcss({
-          content: [
-            path.join(`./test/watch/css`, `**/*.{html,js}`)
-          ]
-        })
-      ]
+      postcss: {
+        plugins: [
+          atImport(),
+          tailwindcss({
+            content: [
+              path.join(`./test/watch/css`, `**/*.{html,js}`)
+            ]
+          })
+        ]
+      }
     })
   ]
 })

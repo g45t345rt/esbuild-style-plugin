@@ -84,7 +84,12 @@ export const getPostCSSWatchFiles = (result: Result) => {
     } else if (type === 'dir-dependency') {
       if (!message.dir) continue
 
-      const globPath = path.join(message.dir, message.glob ?? `**/*`)
+      // Can be translated to const globString = message.glob ?? `**/*` but we will use code bellow to support node12
+      // https://node.green/#ES2020-features--nullish-coalescing-operator-----
+      let globString = `**/*`
+      if (message.glob && message.glob !== '') globString = message.glob
+
+      const globPath = path.join(message.dir, globString)
       const files = glob.sync(globPath)
       watchFiles = [...watchFiles, ...files]
     }
