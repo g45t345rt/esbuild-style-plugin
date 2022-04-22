@@ -1,6 +1,5 @@
 import path from 'path'
 import fs from 'fs'
-import resolve from 'resolve'
 import postcss, { AcceptedPlugin, ProcessOptions } from 'postcss'
 import cssModules from 'postcss-modules'
 import temp from 'temp'
@@ -26,6 +25,7 @@ interface PluginOptions {
 
 const LOAD_TEMP_NAMESPACE = 'temp_stylePlugin'
 const LOAD_STYLE_NAMESPACE = 'stylePlugin'
+const skipResolve = 'esbuild-style-plugin-skipResolve';
 const styleFilter = /.\.(css|sass|scss|less|styl)$/
 
 const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesOptions) => {
@@ -40,9 +40,14 @@ const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesO
   })
 }
 
-const onStyleResolve = async (args: OnResolveArgs): Promise<OnResolveResult> => {
+const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
   const { namespace, resolveDir } = args
-  const fullPath = resolve.sync(args.path, { basedir: args.resolveDir })
+  if (args.pluginData === skipResolve) return
+  const result = await build.resolve(args.path, {resolveDir: args.resolveDir, pluginData: skipResolve})
+  if (result.errors.length > 0) {
+    return { errors: result.errors }
+  }
+  const fullPath = result.path
 
   if (namespace === LOAD_STYLE_NAMESPACE) {
     return {
@@ -131,7 +136,7 @@ const stylePlugin = (options: PluginOptions = {}) => ({
     }
 
     // Resolve all css or other style here
-    build.onResolve({ filter: styleFilter }, onStyleResolve)
+    build.onResolve({ filter: styleFilter }, onStyleResolve.bind(null, build))
 
     // New temp files from rendered css must be evaluated
     build.onLoad({ filter: /.*/, namespace: LOAD_TEMP_NAMESPACE }, onTempLoad)
