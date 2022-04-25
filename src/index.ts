@@ -25,7 +25,7 @@ interface PluginOptions {
 
 const LOAD_TEMP_NAMESPACE = 'temp_stylePlugin'
 const LOAD_STYLE_NAMESPACE = 'stylePlugin'
-const skipResolve = 'esbuild-style-plugin-skipResolve';
+const SKIP_RESOLVE = 'esbuild-style-plugin-skipResolve'
 const styleFilter = /.\.(css|sass|scss|less|styl)$/
 
 const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesOptions) => {
@@ -42,11 +42,14 @@ const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesO
 
 const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
   const { namespace, resolveDir } = args
-  if (args.pluginData === skipResolve) return
-  const result = await build.resolve(args.path, {resolveDir: args.resolveDir, pluginData: skipResolve})
+
+  if (args.pluginData === SKIP_RESOLVE) return
+
+  const result = await build.resolve(args.path, { resolveDir: args.resolveDir, pluginData: SKIP_RESOLVE })
   if (result.errors.length > 0) {
     return { errors: result.errors }
   }
+
   const fullPath = result.path
 
   if (namespace === LOAD_STYLE_NAMESPACE) {
@@ -101,7 +104,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
   // Makes no sense to process postcss if we don't have any plugins
   if (plugins.length > 0) {
-    const result = await postcss(plugins).process(css, { ...processOptions, from: args.path  })
+    const result = await postcss(plugins).process(css, { ...processOptions, from: args.path })
     css = result.css
 
     watchFiles = [...watchFiles, ...getPostCSSWatchFiles(result)]

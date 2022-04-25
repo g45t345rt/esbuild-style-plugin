@@ -16,7 +16,7 @@ test('Test sassOptions', async () => {
     plugins: [stylePlugin({
       renderOptions: {
         sassOptions: {
-          outputStyle: 'compressed'
+          style: 'compressed'
         },
         lessOptions: {
           globalVars: {

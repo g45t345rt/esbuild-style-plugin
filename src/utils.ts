@@ -7,7 +7,7 @@ import { RenderOptions as StylusOptions } from 'stylus'
 import { AcceptedPlugin, Result } from 'postcss'
 
 export interface RenderOptions {
-  sassOptions?: SassOptions
+  sassOptions?: SassOptions<'sync'>
   stylusOptions?: StylusOptions
   lessOptions?: Less.Options
 }

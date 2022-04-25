@@ -16,9 +16,9 @@
       "stylus"
     ],
     // this is for tsconfig_path_aliases test
-    "baseUrl": "./",
+    "baseUrl": "./test/tsconfig_path_aliases/src",
     "paths": {
-      "@sub": [
+      "@sub/*": [
         "sub/*"
       ]
     }
