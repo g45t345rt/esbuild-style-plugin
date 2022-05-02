@@ -51,10 +51,10 @@ const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<
   }
 
   const fullPath = result.path
+
   // Check for pre compiled JS files like file.css.js
-  if (!styleFilter.test(fullPath)) {
-    return;
-  }
+  if (!styleFilter.test(fullPath)) return
+
   if (namespace === LOAD_STYLE_NAMESPACE) {
     return {
       path: fullPath,
