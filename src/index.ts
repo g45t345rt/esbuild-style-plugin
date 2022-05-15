@@ -1,8 +1,7 @@
+import { createHash } from 'crypto'
 import path from 'path'
-import fs from 'fs'
 import postcss, { AcceptedPlugin, ProcessOptions } from 'postcss'
 import cssModules from 'postcss-modules'
-import temp from 'temp'
 import { OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild } from 'esbuild'
 
 import CssModulesOptions from './postcssModulesOptions'
@@ -40,10 +39,20 @@ const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesO
   })
 }
 
-const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
-  const { namespace, resolveDir } = args
+const onTempStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
+  const { path, pluginData, resolveDir } = args
 
-  if (args.pluginData === SKIP_RESOLVE) return
+  return {
+    path: path,
+    namespace: LOAD_TEMP_NAMESPACE,
+    pluginData: { contents: pluginData, resolveDir }
+  }
+}
+
+const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
+  const { namespace } = args
+
+  if (args.pluginData === SKIP_RESOLVE || namespace === LOAD_STYLE_NAMESPACE || namespace === LOAD_TEMP_NAMESPACE) return
 
   const result = await build.resolve(args.path, { resolveDir: args.resolveDir, pluginData: SKIP_RESOLVE })
   if (result.errors.length > 0) {
@@ -55,14 +64,6 @@ const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<
   // Check for pre compiled JS files like file.css.js
   if (!styleFilter.test(fullPath)) return
 
-  if (namespace === LOAD_STYLE_NAMESPACE) {
-    return {
-      path: fullPath,
-      namespace: LOAD_TEMP_NAMESPACE,
-      pluginData: { resolveDir }
-    }
-  }
-
   return {
     path: fullPath,
     namespace: LOAD_STYLE_NAMESPACE,
@@ -72,11 +73,10 @@ const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<
 
 const onTempLoad = async (args: OnLoadArgs): Promise<OnLoadResult> => {
   const { pluginData } = args
-  const data = await fs.promises.readFile(args.path)
 
   return {
     resolveDir: pluginData.resolveDir,
-    contents: data,
+    contents: pluginData.contents,
     loader: 'css'
   }
 }
@@ -118,18 +118,15 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
   // Write new css to a temporary file
   if (extract) {
-    const writestream = temp.createWriteStream({ suffix: '.css' })
-    writestream.write(css)
-    writestream.end()
-
     // Inject import "new url path" so esbuild can resolve a new css file
-    contents += `import ${JSON.stringify(writestream.path)};`
+    contents += `import ${JSON.stringify('ni:sha-256;'+createHash('sha256').update(css).digest('base64url'))};`
   }
 
   return {
     watchFiles,
     resolveDir: path.dirname(args.path), // Keep resolveDir for onTempLoad anything resolve inside temp file must be resolve using source dir
-    contents: contents
+    contents: contents,
+    pluginData: css
   }
 }
 
@@ -143,6 +140,7 @@ const stylePlugin = (options: PluginOptions = {}) => ({
 
     // Resolve all css or other style here
     build.onResolve({ filter: styleFilter }, onStyleResolve.bind(null, build))
+    build.onResolve({ filter: /^ni:/, namespace: LOAD_STYLE_NAMESPACE }, onTempStyleResolve.bind(null, build))
 
     // New temp files from rendered css must be evaluated
     build.onLoad({ filter: /.*/, namespace: LOAD_TEMP_NAMESPACE }, onTempLoad)
