@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import path from 'path'
 import postcss, { AcceptedPlugin, ProcessOptions } from 'postcss'
 import cssModules from 'postcss-modules'
@@ -39,12 +40,12 @@ const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesO
 }
 
 const onTempStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
-  const { path, resolveDir } = args
+  const { path, pluginData, resolveDir } = args
 
   return {
     path: path,
     namespace: LOAD_TEMP_NAMESPACE,
-    pluginData: { resolveDir }
+    pluginData: { contents: pluginData, resolveDir }
   }
 }
 
@@ -72,11 +73,10 @@ const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<
 
 const onTempLoad = async (args: OnLoadArgs): Promise<OnLoadResult> => {
   const { pluginData } = args
-  const data = args.path
 
   return {
     resolveDir: pluginData.resolveDir,
-    contents: data,
+    contents: pluginData.contents,
     loader: 'css'
   }
 }
@@ -119,13 +119,14 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   // Write new css to a temporary file
   if (extract) {
     // Inject import "new url path" so esbuild can resolve a new css file
-    contents += `import ${JSON.stringify(css)};`
+    contents += `import ${JSON.stringify('ni:sha-256;'+createHash('sha256').update(css).digest('base64url'))};`
   }
 
   return {
     watchFiles,
     resolveDir: path.dirname(args.path), // Keep resolveDir for onTempLoad anything resolve inside temp file must be resolve using source dir
-    contents: contents
+    contents: contents,
+    pluginData: css
   }
 }
 
@@ -139,7 +140,7 @@ const stylePlugin = (options: PluginOptions = {}) => ({
 
     // Resolve all css or other style here
     build.onResolve({ filter: styleFilter }, onStyleResolve.bind(null, build))
-    build.onResolve({ filter: /.*/, namespace: LOAD_STYLE_NAMESPACE }, onTempStyleResolve.bind(null, build))
+    build.onResolve({ filter: /^ni:/, namespace: LOAD_STYLE_NAMESPACE }, onTempStyleResolve.bind(null, build))
 
     // New temp files from rendered css must be evaluated
     build.onLoad({ filter: /.*/, namespace: LOAD_TEMP_NAMESPACE }, onTempLoad)
