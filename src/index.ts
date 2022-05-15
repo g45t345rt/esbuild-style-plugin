@@ -15,9 +15,8 @@ interface PostCSS extends ProcessOptions {
 interface PluginOptions {
   extract?: boolean
   cssModulesMatch?: RegExp
-  cssModulesOptions?: CssModulesOptions,
-  postcss?: PostCSS // AcceptedPlugin[],
-  //postcssOptions?: ProcessOptions
+  cssModulesOptions?: CssModulesOptions
+  postcss?: PostCSS
   postcssConfigFile?: string | boolean
   renderOptions?: RenderOptions
 }
@@ -116,9 +115,8 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
     if (injectMapping) contents += `export default ${mapping.data};`
   }
 
-  // Write new css to a temporary file
   if (extract) {
-    // Inject import "new url path" so esbuild can resolve a new css file
+    // Bundle css into inline base64url 
     contents += `import ${JSON.stringify('ni:sha-256;'+createHash('sha256').update(css).digest('base64url'))};`
   }
 
