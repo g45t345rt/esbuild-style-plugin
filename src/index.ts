@@ -52,7 +52,7 @@ const onTempStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Prom
 const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
   const { namespace } = args
 
-  if (args.pluginData === SKIP_RESOLVE || namespace === LOAD_STYLE_NAMESPACE) return
+  if (args.pluginData === SKIP_RESOLVE || namespace === LOAD_STYLE_NAMESPACE || namespace === LOAD_TEMP_NAMESPACE) return
 
   const result = await build.resolve(args.path, { resolveDir: args.resolveDir, pluginData: SKIP_RESOLVE })
   if (result.errors.length > 0) {
