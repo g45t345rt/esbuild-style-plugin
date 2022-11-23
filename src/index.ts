@@ -26,6 +26,8 @@ const LOAD_STYLE_NAMESPACE = 'stylePlugin'
 const SKIP_RESOLVE = 'esbuild-style-plugin-skipResolve'
 const styleFilter = /.\.(css|sass|scss|less|styl)$/
 
+const createCssModulesMatchFromOptions = (options: PluginOptions) => options.cssModulesMatch || /\.module\./
+
 const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesOptions) => {
   const _getJSON = cssModulesOptions.getJSON
 
@@ -48,10 +50,13 @@ const onTempStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Prom
   }
 }
 
-const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
+const onStyleResolve = (options: PluginOptions) => async (build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> => {
   const { namespace } = args
 
   if (args.pluginData === SKIP_RESOLVE || namespace === LOAD_STYLE_NAMESPACE || namespace === LOAD_TEMP_NAMESPACE) return
+
+  // Check if we should even handle this path
+  if (!createCssModulesMatchFromOptions(options).test(path)) return
 
   const result = await build.resolve(args.path, { resolveDir: args.resolveDir, pluginData: SKIP_RESOLVE })
   if (result.errors.length > 0) {
@@ -83,7 +88,7 @@ const onTempLoad = async (args: OnLoadArgs): Promise<OnLoadResult> => {
 const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promise<OnLoadResult> => {
   // { extract: false } is for SSR since we only need the css mapping and not the actual css file
   const extract = options.extract === undefined ? true : options.extract
-  const cssModulesMatch = options.cssModulesMatch || /\.module\./
+  const cssModulesMatch = createCssModulesMatchFromOptions(options)
   const isCSSModule = args.path.match(cssModulesMatch)
   const cssModulesOptions = options.cssModulesOptions || {}
   const renderOptions = options.renderOptions
@@ -137,7 +142,7 @@ const stylePlugin = (options: PluginOptions = {}) => ({
     }
 
     // Resolve all css or other style here
-    build.onResolve({ filter: styleFilter }, onStyleResolve.bind(null, build))
+    build.onResolve({ filter: styleFilter }, onStyleResolve(options).bind(null, build))
     build.onResolve({ filter: /^ni:/, namespace: LOAD_STYLE_NAMESPACE }, onTempStyleResolve.bind(null, build))
 
     // New temp files from rendered css must be evaluated
