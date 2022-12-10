@@ -53,7 +53,7 @@ const onStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Promise<
 
   if (args.pluginData === SKIP_RESOLVE || namespace === LOAD_STYLE_NAMESPACE || namespace === LOAD_TEMP_NAMESPACE) return
 
-  const result = await build.resolve(args.path, { resolveDir: args.resolveDir, pluginData: SKIP_RESOLVE })
+  const result = await build.resolve(args.path, { resolveDir: args.resolveDir, pluginData: SKIP_RESOLVE, kind: args.kind })
   if (result.errors.length > 0) {
     return { errors: result.errors }
   }
