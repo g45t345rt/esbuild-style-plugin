@@ -1,7 +1,7 @@
 import { TextDecoder } from 'util'
 import path from 'path'
 import fs from 'fs'
-import glob from 'glob'
+import { globSync } from 'glob'
 import { Options as SassOptions } from 'sass'
 import { RenderOptions as StylusOptions } from 'stylus'
 import { AcceptedPlugin, Result } from 'postcss'
@@ -90,7 +90,7 @@ export const getPostCSSWatchFiles = (result: Result) => {
       if (message.glob && message.glob !== '') globString = message.glob
 
       const globPath = path.join(message.dir, globString)
-      const files = glob.sync(globPath)
+      const files = globSync(globPath)
       watchFiles = [...watchFiles, ...files]
     }
   }
