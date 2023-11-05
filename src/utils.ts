@@ -14,7 +14,7 @@ export interface RenderOptions {
 
 export const getModule = async (moduleName: string) => {
   try {
-    return (await import(moduleName)).default
+    return (moduleName == 'sass') ? (await import(moduleName)) : (await import(moduleName)).default
   } catch {
     throw new Error(`Missing module. Please install '${moduleName}' package.`)
   }
