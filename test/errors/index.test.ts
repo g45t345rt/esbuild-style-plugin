@@ -11,5 +11,5 @@ test('Test errors', async () => {
   expect(() => renderStyle(filePath)).rejects.toThrow(`Can't render this style '${ext}'.`)
 
   const moduleName = 'asd'
-  expect(() => getModule(moduleName)).rejects.toThrow(`Missing module. Please install '${moduleName}' package.`)
+  expect(() => getModule(moduleName, '')).rejects.toThrow(`Missing module. Please install '${moduleName}' package.`)
 })

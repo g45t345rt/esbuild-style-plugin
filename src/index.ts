@@ -42,7 +42,7 @@ const onTempStyleResolve = async (build: PluginBuild, args: OnResolveArgs): Prom
   const { importer, pluginData, resolveDir } = args
 
   return {
-    path: path.relative(build.initialOptions.absWorkingDir||'', importer),
+    path: path.relative(build.initialOptions.absWorkingDir || '', importer),
     namespace: LOAD_TEMP_NAMESPACE,
     pluginData: { contents: pluginData, resolveDir }
   }
@@ -117,7 +117,7 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
 
   if (extract) {
     // Bundle css into inline base64url
-    contents += `import ${JSON.stringify('ni:sha-256;'+createHash('sha256').update(css).digest('base64url'))};`
+    contents += `import ${JSON.stringify('ni:sha-256;' + createHash('sha256').update(css).digest('base64url'))};`
   }
 
   return {

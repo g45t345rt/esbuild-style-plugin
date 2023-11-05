@@ -12,16 +12,23 @@ export interface RenderOptions {
   lessOptions?: Less.Options
 }
 
-export const getModule = async (moduleName: string) => {
+export const getModule = async (moduleName: string, checkFunc: string) => {
   try {
-    return (moduleName == 'sass') ? (await import(moduleName)) : (await import(moduleName)).default
-  } catch {
-    throw new Error(`Missing module. Please install '${moduleName}' package.`)
+    const module = await import(moduleName)
+    if (typeof module[checkFunc] === `function`) return module
+    if (typeof module.default[checkFunc] === `function`) return module.default
+    throw new Error(`Func '${checkFunc}' not found for module '${moduleName}'`)
+  } catch (e) {
+    if (e.code === 'MODULE_NOT_FOUND') {
+      throw new Error(`Missing module. Please install '${moduleName}' package.`)
+    } else {
+      throw e
+    }
   }
 }
 
 const renderStylus = async (css: string, options: StylusOptions): Promise<string> => {
-  const stylus = await getModule('stylus')
+  const stylus = await getModule('stylus', 'render')
   return new Promise((resolve, reject) => {
     stylus.render(css, options, (err, css) => {
       if (err) reject(err)
@@ -39,7 +46,7 @@ export const renderStyle = async (filePath, options: RenderOptions = {}): Promis
 
   if (ext === '.sass' || ext === '.scss') {
     const sassOptions = options.sassOptions || {}
-    const sass = await getModule('sass')
+    const sass = await getModule('sass', 'renderSync')
     return sass.renderSync({ ...sassOptions, file: filePath }).css.toString()
   }
 
@@ -52,7 +59,7 @@ export const renderStyle = async (filePath, options: RenderOptions = {}): Promis
   if (ext === '.less') {
     const lestOptions = options.lessOptions || {}
     const source = await fs.promises.readFile(filePath)
-    const less = await getModule('less')
+    const less = await getModule('less', 'render')
     return (await less.render(new TextDecoder().decode(source), { ...lestOptions, filename: filePath })).css
   }
 

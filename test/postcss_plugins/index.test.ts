@@ -5,7 +5,6 @@ import autoprefixer from 'autoprefixer'
 import presetEnv from 'postcss-preset-env'
 
 import scss from 'postcss-scss'
-import skipInlineComments from 'postcss-strip-inline-comments'
 
 import stylePlugin from '../../src'
 
@@ -20,7 +19,6 @@ test('PostCSS plugins', async () => {
       postcss: {
         parser: scss,
         plugins: [
-          skipInlineComments(),
           autoprefixer,
           presetEnv({ stage: 0 })
         ]
