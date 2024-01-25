@@ -1,15 +1,33 @@
 import { TextDecoder } from 'util'
 import path from 'path'
 import fs from 'fs'
+import url from 'node:url'
 import { globSync } from 'glob'
-import { Options as SassOptions } from 'sass'
+import type * as Sass from 'sass'
 import { RenderOptions as StylusOptions } from 'stylus'
 import { AcceptedPlugin, Result } from 'postcss'
 
+type SassOptions = Sass.LegacySharedOptions<'sync'>;
+
 export interface RenderOptions {
-  sassOptions?: SassOptions<'sync'>
+  sassOptions?: SassOptions
   stylusOptions?: StylusOptions
   lessOptions?: Less.Options
+}
+
+export interface RenderResult {
+  css: string;
+  watchFiles: string[];
+}
+
+interface SourceMap {
+    version: number;
+    file: string;
+    sourceRoot?: string;
+    sources: string[];
+    sourcesContent?: string[];
+    names: string[];
+    mappings: string;
 }
 
 export const getModule = async (moduleName: string, checkFunc: string) => {
@@ -27,6 +45,15 @@ export const getModule = async (moduleName: string, checkFunc: string) => {
   }
 }
 
+const getWatchFilesFromSourceMap = (sourceMap: SourceMap): string[] => {
+  const topLevelFilePath = url.fileURLToPath(sourceMap.file);
+  const baseDir = path.dirname(topLevelFilePath);
+  const watchFiles: string[] = sourceMap.sources.map((srcFile) => {
+    return path.resolve(baseDir, srcFile);
+  });
+  return watchFiles;
+};
+
 const renderStylus = async (css: string, options: StylusOptions): Promise<string> => {
   const stylus = await getModule('stylus', 'render')
   return new Promise((resolve, reject) => {
@@ -37,30 +64,54 @@ const renderStylus = async (css: string, options: StylusOptions): Promise<string
   })
 }
 
-export const renderStyle = async (filePath, options: RenderOptions = {}): Promise<string> => {
+const renderSass = async (filePath: string, options: SassOptions): Promise<RenderResult> => {
+  const sass: typeof Sass = (await getModule('sass', 'renderSync'));
+  const sassResult = sass.renderSync({
+    ...options,
+    file: filePath,
+    // Force sourcemap to be enabled so that we can parse the file sources out of it
+    sourceMap: `${filePath}.map`,
+    sourceMapEmbed: false,
+  });
+  const sourceMap: SourceMap = JSON.parse(sassResult.map.toString());
+  return {
+    css: sassResult.css.toString(),
+    watchFiles: getWatchFilesFromSourceMap(sourceMap),
+  };
+};
+
+export const renderStyle = async (filePath: string, options: RenderOptions = {}): Promise<RenderResult> => {
   const { ext } = path.parse(filePath)
 
   if (ext === '.css') {
-    return (await fs.promises.readFile(filePath)).toString()
+    return {
+      css: (await fs.promises.readFile(filePath)).toString(),
+      watchFiles: [],
+    };
   }
 
   if (ext === '.sass' || ext === '.scss') {
     const sassOptions = options.sassOptions || {}
-    const sass = await getModule('sass', 'renderSync')
-    return sass.renderSync({ ...sassOptions, file: filePath }).css.toString()
+    return renderSass(filePath, sassOptions);
   }
 
   if (ext === '.styl') {
     const stylusOptions = options.stylusOptions || {}
     const source = await fs.promises.readFile(filePath)
-    return await renderStylus(new TextDecoder().decode(source), { ...stylusOptions, filename: filePath })
+    return {
+      css: await renderStylus(new TextDecoder().decode(source), { ...stylusOptions, filename: filePath }),
+      watchFiles: [],
+    };
   }
 
   if (ext === '.less') {
     const lestOptions = options.lessOptions || {}
     const source = await fs.promises.readFile(filePath)
     const less = await getModule('less', 'render')
-    return (await less.render(new TextDecoder().decode(source), { ...lestOptions, filename: filePath })).css
+    return {
+      css: (await less.render(new TextDecoder().decode(source), { ...lestOptions, filename: filePath })).css,
+      watchFiles: [],
+    };
   }
 
   throw new Error(`Can't render this style '${ext}'.`)

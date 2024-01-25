@@ -89,9 +89,8 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
   const renderOptions = options.renderOptions
 
   // Render whatever style currently on the loader .css, .sass, .styl, .less
-  let css = await renderStyle(args.path, renderOptions)
+  let { css, watchFiles } = await renderStyle(args.path, renderOptions)
 
-  let watchFiles = []
   let mapping = { data: {} }
   let { plugins = [], ...processOptions } = options.postcss || {}
   let injectMapping = false
