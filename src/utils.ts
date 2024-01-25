@@ -4,6 +4,7 @@ import fs from 'fs'
 import { globSync } from 'glob'
 import type * as Sass from 'sass'
 import type * as Stylus from 'stylus'
+import type * as Less from 'less'
 import { AcceptedPlugin, Result } from 'postcss'
 
 type SassOptions = Sass.LegacySharedOptions<'sync'>;
@@ -45,17 +46,22 @@ export const getModule = async (moduleName: string, checkFunc: string) => {
 }
 
 const getWatchFilesFromSourceMap = (rootFile: string, sourceMap: SourceMap): string[] => {
-  const baseDir = path.dirname(rootFile);
-  const watchFiles: string[] = sourceMap.sources.map((srcFile) => {
-    return path.resolve(baseDir, srcFile);
-  });
-  return watchFiles;
+  try {
+    const baseDir = path.dirname(rootFile);
+    const watchFiles: string[] = sourceMap.sources.map((srcFile) => {
+      return path.resolve(baseDir, srcFile);
+    });
+    return watchFiles;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
 };
 
-const renderStylus = async (filePath: string, css: string, options: Stylus.RenderOptions): Promise<RenderResult> => {
+const renderStylus = async (filePath: string, source: string, options: Stylus.RenderOptions): Promise<RenderResult> => {
   const stylus: typeof Stylus = await getModule('stylus', 'render')
   return new Promise((resolve, reject) => {
-    const style = stylus.default(css, options)
+    const style = stylus.default(source, options)
       .set('sourcemap', { inline: false });
 
     style.render((err, css) => {
@@ -88,6 +94,22 @@ const renderSass = async (filePath: string, options: SassOptions): Promise<Rende
   };
 };
 
+const renderLess = async (filePath: string, source: string, options: Less.Options): Promise<RenderResult> => {
+  const less: typeof Less = await getModule('less', 'render')
+  const lessResults = await less.render(source, {
+    ...options,
+    // Force sourcemap to be enabled so that we can parse the file sources out of it
+    sourceMap: {
+      sourceMapFileInline: false,
+    },
+  });
+  const sourceMap: SourceMap = JSON.parse(lessResults.map);
+  return {
+    css: lessResults.css,
+    watchFiles: getWatchFilesFromSourceMap(filePath, sourceMap),
+  };
+};
+
 export const renderStyle = async (filePath: string, options: RenderOptions = {}): Promise<RenderResult> => {
   const { ext } = path.parse(filePath)
 
@@ -113,10 +135,7 @@ export const renderStyle = async (filePath: string, options: RenderOptions = {})
     const lestOptions = options.lessOptions || {}
     const source = await fs.promises.readFile(filePath)
     const less = await getModule('less', 'render')
-    return {
-      css: (await less.render(new TextDecoder().decode(source), { ...lestOptions, filename: filePath })).css,
-      watchFiles: [],
-    };
+    return renderLess(filePath, new TextDecoder().decode(source), { ...lestOptions, filename: filePath });
   }
 
   throw new Error(`Can't render this style '${ext}'.`)
