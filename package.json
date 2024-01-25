@@ -24,8 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/less": "^3.0.3",
-    "@types/sass": "^1.43.1",
-    "@types/stylus": "^0.48.38",
+    "@types/stylus": "^0.48.42",
     "glob": "^10.2.2",
     "postcss": "^8.4.31",
     "postcss-modules": "^6.0.0"
@@ -42,8 +41,8 @@
     "postcss-import": "^15.1.0",
     "postcss-preset-env": "^8.3.2",
     "postcss-scss": "^4.0.6",
-    "sass": "^1.69.5",
-    "stylus": "^0.59.0",
+    "sass": "^1.70.0",
+    "stylus": "^0.62.0",
     "tailwindcss": "^3.3.2",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1"
