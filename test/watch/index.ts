@@ -5,17 +5,25 @@ import tailwindcss from 'tailwindcss'
 
 import stylePlugin from '../../src'
 
-const onRebuild = (error: esbuild.BuildFailure, result: esbuild.BuildResult) => {
-  if (error) console.error('watch build failed:', error)
-  else console.log('watch build succeeded:', result)
+const consoleLogPlugin: esbuild.Plugin = {
+  name: 'console-log-plugin',
+  setup(build) {
+    build.onEnd((result) => {
+      if (result.errors.length > 0) {
+        console.error('watch build failed:', result.errors);
+      } else {
+        console.log('watch build succeeded:', result);
+      }
+    })
+  },
 }
 
-esbuild.build({
+esbuild.context({
   entryPoints: ['./test/watch/src/index.ts'],
   outdir: './test/watch/dist',
   bundle: true,
-  watch: { onRebuild },
   plugins: [
+    consoleLogPlugin,
     stylePlugin({
       postcss: {
         plugins: [
@@ -29,4 +37,6 @@ esbuild.build({
       }
     })
   ]
-})
+}).then(async (context) => {
+  context.watch();
+});
