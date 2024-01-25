@@ -1,17 +1,16 @@
 import { TextDecoder } from 'util'
 import path from 'path'
 import fs from 'fs'
-import url from 'node:url'
 import { globSync } from 'glob'
 import type * as Sass from 'sass'
-import { RenderOptions as StylusOptions } from 'stylus'
+import type * as Stylus from 'stylus'
 import { AcceptedPlugin, Result } from 'postcss'
 
 type SassOptions = Sass.LegacySharedOptions<'sync'>;
 
 export interface RenderOptions {
   sassOptions?: SassOptions
-  stylusOptions?: StylusOptions
+  stylusOptions?: Stylus.RenderOptions
   lessOptions?: Less.Options
 }
 
@@ -45,24 +44,33 @@ export const getModule = async (moduleName: string, checkFunc: string) => {
   }
 }
 
-const getWatchFilesFromSourceMap = (sourceMap: SourceMap): string[] => {
-  const topLevelFilePath = url.fileURLToPath(sourceMap.file);
-  const baseDir = path.dirname(topLevelFilePath);
+const getWatchFilesFromSourceMap = (rootFile: string, sourceMap: SourceMap): string[] => {
+  const baseDir = path.dirname(rootFile);
   const watchFiles: string[] = sourceMap.sources.map((srcFile) => {
     return path.resolve(baseDir, srcFile);
   });
   return watchFiles;
 };
 
-const renderStylus = async (css: string, options: StylusOptions): Promise<string> => {
-  const stylus = await getModule('stylus', 'render')
+const renderStylus = async (filePath: string, css: string, options: Stylus.RenderOptions): Promise<RenderResult> => {
+  const stylus: typeof Stylus = await getModule('stylus', 'render')
   return new Promise((resolve, reject) => {
-    stylus.render(css, options, (err, css) => {
-      if (err) reject(err)
-      resolve(css)
-    })
-  })
-}
+    const style = stylus.default(css, options)
+      .set('sourcemap', { inline: false });
+
+    style.render((err, css) => {
+      const sourceMap: SourceMap = (style as any).sourcemap
+      if (err) {
+        reject(err);
+      } else {
+        resolve({
+          css: css,
+          watchFiles: getWatchFilesFromSourceMap(filePath, sourceMap),
+        });
+      }
+    });
+  });
+};
 
 const renderSass = async (filePath: string, options: SassOptions): Promise<RenderResult> => {
   const sass: typeof Sass = (await getModule('sass', 'renderSync'));
@@ -76,7 +84,7 @@ const renderSass = async (filePath: string, options: SassOptions): Promise<Rende
   const sourceMap: SourceMap = JSON.parse(sassResult.map.toString());
   return {
     css: sassResult.css.toString(),
-    watchFiles: getWatchFilesFromSourceMap(sourceMap),
+    watchFiles: getWatchFilesFromSourceMap(filePath, sourceMap),
   };
 };
 
@@ -98,10 +106,7 @@ export const renderStyle = async (filePath: string, options: RenderOptions = {})
   if (ext === '.styl') {
     const stylusOptions = options.stylusOptions || {}
     const source = await fs.promises.readFile(filePath)
-    return {
-      css: await renderStylus(new TextDecoder().decode(source), { ...stylusOptions, filename: filePath }),
-      watchFiles: [],
-    };
+    return renderStylus(filePath, new TextDecoder().decode(source), { ...stylusOptions, filename: filePath });
   }
 
   if (ext === '.less') {
